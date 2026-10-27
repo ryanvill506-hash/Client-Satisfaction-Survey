@@ -21,13 +21,13 @@ class AdminAuthTest extends TestCase
     {
         $user = User::factory()->create([
             'email' => 'admin@citizenscharter.gov.ph',
-            'password' => bcrypt('OSSA*COM'),
+            'password' => bcrypt('password'),
         ]);
 
         $response = $this->post('/admin/login', [
             'email' => $user->email,
             'password' => 'password',
-        ]); 
+        ]);
 
         $response->assertRedirect('/admin/dashboard');
         $this->assertAuthenticatedAs($user);

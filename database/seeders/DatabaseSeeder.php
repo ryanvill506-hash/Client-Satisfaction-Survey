@@ -15,17 +15,39 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (app()->environment('local', 'testing')) {
+            User::firstOrCreate(
+                ['email' => 'admin@citizenscharter.gov.ph'],
+                [
+                    'name' => 'Admin Officer',
+                    'password' => bcrypt('password'),
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            $this->call(SurveyResponseSeeder::class);
+
+            return;
+        }
+
+        $adminEmail = config('services.admin_bootstrap.email');
+        $adminPassword = config('services.admin_bootstrap.password');
+
+        if (blank($adminEmail) && blank($adminPassword)) {
+            return;
+        }
+
+        if (blank($adminEmail) || blank($adminPassword)) {
+            throw new \InvalidArgumentException('Both ADMIN_BOOTSTRAP_EMAIL and ADMIN_BOOTSTRAP_PASSWORD must be set.');
+        }
 
         User::firstOrCreate(
-            ['email' => 'admin@citizenscharter.gov.ph'],
+            ['email' => $adminEmail],
             [
                 'name' => 'Admin Officer',
-                'password' => bcrypt('password'),
+                'password' => $adminPassword,
                 'email_verified_at' => now(),
             ]
         );
-
-        $this->call(SurveyResponseSeeder::class);
     }
 }
